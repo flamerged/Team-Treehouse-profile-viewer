@@ -11,7 +11,3 @@ http.createServer(function(request, response) {
     router.user(request, response);
 }).listen(1337, '127.0.0.1');
 console.log('Server running at http://127.0.0.1/');
-
-//4. Function that handles the reading of files and merge in value
-//read from file and get a string
-// merge values into string

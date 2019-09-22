@@ -1,14 +1,17 @@
 const Profile = require('./profile.js');
+const renderer = require('./renderer.js');
+const commonHeader = { 'Content-Type': 'text/html' };
 
 //2. Handle HTTP route GET / and POST / i.e. Home
 function home(request, response) {
     //if url == "/" && GET
     //show search
     if (request.url === '/') {
-        response.writeHead(200, { 'Content-Type': 'text/html' });
-        response.write('Header\n');
-        response.write('Search \n');
-        response.end('Footer\n');
+        response.writeHead(200, commonHeader);
+        renderer.view('header', {}, response);
+        renderer.view('search', {}, response);
+        renderer.view('footer', {}, response);
+        response.end('');
     }
     //if url == "/" & POST
     //redirect to /:username
@@ -20,8 +23,8 @@ function user(request, response) {
     const username = request.url.replace('/', '');
 
     if (username.length > 0) {
-        response.writeHead(200, { 'Content-Type': 'text/html' });
-        response.write('Header\n');
+        response.writeHead(200, commonHeader);
+        renderer.view('header', {}, response);
         const studentProfile = new Profile(username);
         studentProfile.on('end', function(profileJSON) {
             const values = {
@@ -30,12 +33,15 @@ function user(request, response) {
                 badges: profileJSON.badges.length,
                 javascriptPoints: profileJSON.points.JavaScript
             };
-            response.write(values.javascriptPoints + ` JavaScript Points \n`);
-            response.end('Footer\n');
+            renderer.view('profile', values, response);
+            renderer.view('footer', {}, response);
+            response.end();
         });
         studentProfile.on('error', error => {
-            response.write(error.message);
-            response.end('Error written.');
+            renderer.view('error', { errorMessage: error.message }, response);
+            renderer.view('search', {}, response);
+            renderer.view('footer', {}, response);
+            response.end();
         });
     }
     /*
